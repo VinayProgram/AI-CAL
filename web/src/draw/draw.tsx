@@ -16,7 +16,7 @@ const Draw = () => {
   const [index, setIndex] = React.useState<number>(0);
   const [instructions, setInstructions] = React.useState<string>();
   const dataContext = React.useContext(DrawContext);
-  const labels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const labels = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
   
   const start = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     if (data.student == "") {
@@ -75,8 +75,8 @@ const Draw = () => {
         <br />
         {instructions}
       </div>
-      {data.student.length>=1&& <SketchPad key={index} />}
-      {data.student.length>=1&&<button onClick={onNext}>next</button>}
+      {data.student.length>=1&&labels[index]&& <SketchPad key={index} />}
+      {data.student.length>=1&&<button onClick={onNext}>{labels[index]?'next':'save'}</button>}
     </div>
   );
 };
