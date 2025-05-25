@@ -4,12 +4,14 @@ import './index.css'
 import Draw from './draw/draw'
 import { DrawGetSetData } from './draw/drawContext'
 import DataVisuale from './data-visualize/datavisualize'
+import GraphTable from './graph/Graphtable'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <DrawGetSetData>
-    <Draw />
-    <DataVisuale/>
+    {/* <Draw />
+    <DataVisuale/> */}
+    <GraphTable/>
     </DrawGetSetData>
   </StrictMode>,
 )
