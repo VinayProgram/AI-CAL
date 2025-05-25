@@ -9,6 +9,7 @@ type TextOptions = {
 
 export const graphics = {
   drawPoint: (
+    label:string,
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
@@ -20,6 +21,8 @@ export const graphics = {
     ctx.fillStyle = color;
     ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.fill();
+    ctx.fillStyle = "blue";
+    ctx.fillText(label, x, y);
     ctx.restore();
   },
 

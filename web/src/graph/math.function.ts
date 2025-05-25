@@ -21,7 +21,7 @@ export const mathcustom = {
   ): number[] => {
     return [
       mathcustom.remap(from.minX, from.maxX, to.minX, to.maxX, point[0]),
-      mathcustom.remap(from.minY, from.maxY, to.minY, to.maxY, point[1])
+      mathcustom.remap(from.minY, from.maxY, to.maxY, to.minY, point[1])
     ];
   }
 

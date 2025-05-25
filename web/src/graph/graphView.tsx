@@ -75,7 +75,7 @@ const GraphView = ({ samples, options: initialOptions }: GraphViewProps) => {
   for (const sample of samples) {
     const point = sample.point;
     const pixelLocation = mathcustom.remapPoint(dataBounds, pixelBounds, point);
-    graphics.drawPoint(ctx, pixelLocation[0], pixelLocation[1], 5);
+    graphics.drawPoint(sample.label,ctx, pixelLocation[0], pixelLocation[1], 5);
   }
 };
 
