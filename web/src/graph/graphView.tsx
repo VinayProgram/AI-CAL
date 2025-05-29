@@ -85,7 +85,9 @@ const drawAxes = () => {
 
   const pixelBounds = getPixelBounds();
   const dataBounds = getDataBounds();
-
+  const dataMinimum =mathcustom.remapPoint(pixelBounds,dataBounds,[pixelBounds.minY, pixelBounds.maxY]);
+  const dataMax =mathcustom.remapPoint(pixelBounds,dataBounds,[pixelBounds.maxY, pixelBounds.minY]);
+  console.log("dataMinimum", dataMax);
   // Clear margins
   ctx.clearRect(0, 0, options.size, options.margin); // Top
   ctx.clearRect(0, 0, options.margin, options.size); // Left
@@ -95,16 +97,17 @@ const drawAxes = () => {
   // X-axis label
   graphics.drawText(ctx, {
     loc: { x: mathcustom.lerp(pixelBounds.maxX,pixelBounds.minX,0.5), y: pixelBounds.maxY + options.margin / 2 },
-    text: options.labels?.[0] || "price",
+    text: options.labels?.[0] || "km",
   });
 
   // Y-axis label
   ctx.save();
   ctx.translate(pixelBounds.minX - options.margin / 2, options.size / 2);
   ctx.rotate(-Math.PI / 2);
+
   graphics.drawText(ctx, {
     loc: { x: 0, y: 0 },
-    text: options.labels?.[1] || "km",
+    text: options.labels?.[0] || "price",
   });
   ctx.restore();
 
@@ -119,43 +122,25 @@ const drawAxes = () => {
       ctx.setLineDash([]);
 
 graphics.drawText(ctx, {
-   text: mathcustom.formatNumber(dataBounds.minY, 2),
+   text: mathcustom.formatNumber(dataMinimum[0], 2),
    loc: {
       x: pixelBounds.minX,
-      y: pixelBounds.maxY + options.margin * 0.2
+      y: pixelBounds.maxY + options.margin * 0.3
    },
    align: "left",
    vAlign: "top"
 });
 
 graphics.drawText(ctx, {
-   text: mathcustom.formatNumber(dataBounds.maxY, 2),
+   text: mathcustom.formatNumber(dataMinimum[1], 0),
    loc: {
-      x: pixelBounds.maxX,
-      y: pixelBounds.maxY + options.margin * 0.2
-   },
-   align: "left",
-   vAlign: "top"
-});
-graphics.drawText(ctx, {
-   text: mathcustom.formatNumber(dataBounds.minX, 2),
-   loc: {
-      x: pixelBounds.minX-options.margin * 1,
+      x: pixelBounds.minX-options.margin * 0.7,
       y: pixelBounds.maxX-options.margin * 0.4
    },
    align: "left",
    vAlign: "top"
 });
 
-graphics.drawText(ctx, {
-   text: mathcustom.formatNumber(dataBounds.maxX, 2),
-   loc: {
-      x: pixelBounds.minX - options.margin * 1,
-      y: pixelBounds.minY + options.margin * 0.2
-   },
-   align: "left",
-   vAlign: "top"
-});
 };
  
 
