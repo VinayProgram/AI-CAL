@@ -1,4 +1,4 @@
-import React from "react";
+import React, { MouseEventHandler } from "react";
 import { samplestype } from "./Graphtable";
 import { mathcustom } from "./math.function";
 import { graphics } from "./graphics";
@@ -16,7 +16,24 @@ interface GraphViewProps {
 const GraphView = ({ samples, options: initialOptions }: GraphViewProps) => {
   const ref = React.useRef<HTMLCanvasElement>(null);
   const [ctx, setCtx] = React.useState<CanvasRenderingContext2D | null>(null);
-
+    const [dataPanOffset, setDataPanOffset] = React.useState<{
+    offset: number[],
+    scale: number
+    }>({
+    offset: [0, 0],
+    scale: 1,
+  });
+  const [dragInfo, setDragInfo] = React.useState<{
+    isDragging: boolean,
+    start: number[],
+    end: number[],
+    offset: number[]
+  }>({
+    isDragging: false,
+    start:[] as number[],
+    end:[] as number[],
+    offset: dataPanOffset.offset,
+  })
   const options = {
     ...initialOptions,
     margin: initialOptions.size * 0.1,
@@ -33,7 +50,12 @@ const GraphView = ({ samples, options: initialOptions }: GraphViewProps) => {
   }, [initialOptions.size]);
 
   React.useEffect(() => {
-    if (ctx) draw();
+    if (ctx) {
+      draw();
+      
+    }
+    
+
   }, [ctx, samples, initialOptions]);
 
  const getPixelBounds = (): PixelLocation => {
@@ -57,8 +79,8 @@ const GraphView = ({ samples, options: initialOptions }: GraphViewProps) => {
   };
 };
 
-
-  const draw = () => {
+const [currentDataBounds,SetCurrentDataBounds]=React.useState<PixelLocation>(getDataBounds());
+const draw = () => {
     if (!ctx) return;
     ctx.clearRect(0, 0, options.size, options.size);
     ctx.globalAlpha = options.transperency!;
@@ -67,10 +89,23 @@ const GraphView = ({ samples, options: initialOptions }: GraphViewProps) => {
     ctx.globalAlpha = 1;
   };
 
+  
+const getMouse= (event: React.MouseEvent<HTMLCanvasElement>,dataSpace:Boolean=false) => {
+  const rect = ref.current?.getBoundingClientRect();
+  const pixelLocation=[
+    event.clientX - (rect?.left || 0),
+    event.clientY - (rect?.top || 0)
+  ]
+  if(dataSpace){
+    const dataLocation = mathcustom.remapPoint(getPixelBounds(), getDataBounds(), pixelLocation);
+    return dataLocation;
+  }
+  return pixelLocation;
+}
  const drawSamples = () => {
   if (!ctx) return;
 
-  const dataBounds = getDataBounds();
+  const dataBounds = currentDataBounds;
   const pixelBounds = getPixelBounds();
   for (const sample of samples) {
     const point = sample.point;
@@ -84,7 +119,7 @@ const drawAxes = () => {
   if (!ctx) return;
 
   const pixelBounds = getPixelBounds();
-  const dataBounds = getDataBounds();
+  const dataBounds =currentDataBounds
   const dataMinimum =mathcustom.remapPoint(pixelBounds,dataBounds,[pixelBounds.minY, pixelBounds.maxY]);
   const dataMax =mathcustom.remapPoint(pixelBounds,dataBounds,[pixelBounds.maxY, pixelBounds.minY]);
   console.log("dataMinimum", dataMax);
@@ -141,12 +176,78 @@ graphics.drawText(ctx, {
    vAlign: "top"
 });
 
+graphics.drawText(ctx, {
+   text: mathcustom.formatNumber(dataMax[0], 2),
+   loc: {
+      x: pixelBounds.maxX,
+      y: pixelBounds.maxY + options.margin * 0.3
+   },
+   align: "left",
+   vAlign: "top"
+});
+
+graphics.drawText(ctx, {
+   text: mathcustom.formatNumber(dataMax[1], 2),
+   loc: {
+      x: 0,
+      y: pixelBounds.minX+ options.margin * 0.3
+   },
+   align: "left",
+   vAlign: "top"
+});
 };
  
+const onMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
+  if (dragInfo.isDragging) {
+    const mousePosition = getMouse(event, true);
+    const newOffset = mathcustom.subtract(mousePosition, dragInfo.start);
+    const updatedPanOffset = {
+      ...dataPanOffset,
+      offset: mathcustom.add(dataPanOffset.offset, newOffset)
+    };
 
+    setDataPanOffset(updatedPanOffset);
+    setDragInfo({
+      ...dragInfo,
+      offset: newOffset,
+      end: mousePosition
+    });
+    
+    const newDataBounds = getDataBounds();
+   SetCurrentDataBounds({
+  maxX: newDataBounds.maxX - dataPanOffset.offset[0],
+  maxY: newDataBounds.maxY - dataPanOffset.offset[1],
+  minX: newDataBounds.minX - dataPanOffset.offset[0],
+  minY: newDataBounds.minY - dataPanOffset.offset[1]
+});
+
+
+    draw(); // Redraw with updated bounds
+  }  
+}
   return (
     <div>
       <canvas
+       onMouseDown={(e) => {
+  const mousePosition = getMouse(e, true);
+  setDragInfo({
+    isDragging: true,
+    start: mousePosition,
+    end: mousePosition,
+    offset: [0, 0],
+  });
+}}
+
+onMouseMove={onMouseMove}
+onMouseUp={(e) => {
+  const mousePosition = getMouse(e, true);
+  setDragInfo({
+    isDragging: false,
+    start: mousePosition,
+    end: mousePosition,
+    offset: [0, 0],
+  });
+}}
         id="chartContainer"
         ref={ref}
         style={{ backgroundColor: 'white' }}
