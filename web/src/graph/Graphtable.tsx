@@ -1,44 +1,20 @@
 import { mathcustom } from "./math.function";
 import './graph.css';
-import GraphView from "./GraphView";
-const GraphTable = () => {
-    const N=1000;
-    const samples=[];
-         for(let i=1;i<=N;i++){
-            const type=Math.random()<0.5?"basic":"sport";
-            const km=mathcustom.lerp(3000,300000,Math.random());
-            const price=mathcustom.remap(3000,300000,9000,900,km)+
-               mathcustom.lerp(-2000,2000,Math.random())+
-               (type=="basic"?0:5000);
+import GraphView from "./graphView";
+export interface GraphTableProps {
+    samples: samplestype[];
+}
+const samples: samplestype[] = [
+    { id: 1, label: 'A', point: [100, 200] },
+    { id: 2, label: 'B', point: [150, 250] },
+    { id: 3, label: 'C', point: [200, 300] },
+    { id: 4, label: 'D', point: [250, 350] },
+    { id: 5, label: 'E', point: [300, 400] }
+];
 
-            samples.push({
-               id:i,
-               label:type,
-               point:[km,price]
-            });
-         }
+const GraphTable = ({samples}:GraphTableProps) => {
+
     return (
-        <div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>id</th>
-                        <th>type</th>
-                        <th>km</th>
-                        <th>price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {samples.map((sample) => (
-                        <tr key={sample.id}>
-                            <td>{sample.id}</td>
-                            <td>{sample.label}</td>
-                            <td>{mathcustom.formatNumber(sample.point[0])}</td>
-                            <td>{mathcustom.formatNumber(sample.point[1])}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
             <GraphView options={
                 {
                     size: 500
@@ -46,7 +22,6 @@ const GraphTable = () => {
             } 
             samples={samples}
             />
-        </div>
     )
 }
 

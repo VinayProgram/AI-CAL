@@ -21,8 +21,8 @@ export const graphics = {
     ctx.fillStyle = color;
     ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = "blue";
-    ctx.fillText(label, x, y);
+    ctx.fillStyle = "red";
+    ctx.fillText(label, x-3, y);
     ctx.restore();
   },
 
