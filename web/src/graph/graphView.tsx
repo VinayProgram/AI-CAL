@@ -10,10 +10,11 @@ interface GraphViewProps {
     margin?: number
     transperency?: number
     labels?: string[]
-  }
+  },
+  dyanamicPoint:[number,number]
 }
 
-const GraphView = ({ samples, options: initialOptions }: GraphViewProps) => {
+const GraphView = ({ samples, options: initialOptions,dyanamicPoint }: GraphViewProps) => {
   const ref = React.useRef<HTMLCanvasElement>(null);
   const [ctx, setCtx] = React.useState<CanvasRenderingContext2D | null>(null);
   const [dataPanOffset, setDataPanOffset] = React.useState<{
@@ -52,10 +53,7 @@ const GraphView = ({ samples, options: initialOptions }: GraphViewProps) => {
   React.useEffect(() => {
     if (ctx) {
       draw();
-
     }
-
-
   }, [ctx, samples, initialOptions]);
 
   const getPixelBounds = (): PixelLocation => {
@@ -122,7 +120,6 @@ const GraphView = ({ samples, options: initialOptions }: GraphViewProps) => {
     const dataBounds = currentDataBounds
     const dataMinimum = mathcustom.remapPoint(pixelBounds, dataBounds, [pixelBounds.minY, pixelBounds.maxY]);
     const dataMax = mathcustom.remapPoint(pixelBounds, dataBounds, [pixelBounds.maxY, pixelBounds.minY]);
-    console.log("dataMinimum", dataMax);
     // Clear margins
     ctx.clearRect(0, 0, options.size, options.margin); // Top
     ctx.clearRect(0, 0, options.margin, options.size); // Left
@@ -134,7 +131,7 @@ const GraphView = ({ samples, options: initialOptions }: GraphViewProps) => {
       loc: { x: mathcustom.lerp(pixelBounds.maxX, pixelBounds.minX, 0.5), y: pixelBounds.maxY + options.margin / 2 },
       text: options.labels?.[0] || "km",
     });
-
+  
     // Y-axis label
     ctx.save();
     ctx.translate(pixelBounds.minX - options.margin / 2, options.size / 2);
@@ -142,7 +139,7 @@ const GraphView = ({ samples, options: initialOptions }: GraphViewProps) => {
 
     graphics.drawText(ctx, {
       loc: { x: 0, y: 0 },
-      text: options.labels?.[0] || "price",
+      text: options.labels?.[1] || "price",
     });
     ctx.restore();
 

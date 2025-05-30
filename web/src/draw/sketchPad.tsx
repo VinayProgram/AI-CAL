@@ -42,7 +42,7 @@ const SketchPad = () => {
        <canvas 
        width={400} 
        height={400} 
-       style={{backgroundColor:"white"}} 
+       style={{backgroundColor:"white",border:"1px solid black"}} 
        ref={canvasRef}
        onMouseMove={onMouseMove}
        onMouseDown={onMouseDown}

@@ -3,6 +3,12 @@ import samples from '../../../data/dataset/samples.json';
 import { site } from '../constants';
 import GraphTable from '../graph/Graphtable';
 import dataSample from '../../../data/dataset/features.json';
+import GraphView from '../graph/graphView';
+import SketchPad from '../draw/sketchPad';
+import Draw from '../draw/draw';
+import DrawContext from '../draw/drawContext';
+//@ts-ignore
+import d from '../../../common/feature.js'
 type GroupByKey<T> = keyof T;
 
 export function groupBy<T>(objArray: T[], key: GroupByKey<T>): Record<string, T[]> {
@@ -18,8 +24,13 @@ export function groupBy<T>(objArray: T[], key: GroupByKey<T>): Record<string, T[
 }
 
 const DataVisuale: React.FC = () => {
+    const dataContext = React.useContext(DrawContext);
+    const [point, setPoint] = React.useState<[number, number]>([0, 0]);
+    React.useMemo(() => {    
+      setPoint([d.getPathCount(dataContext?.paths),d.getPointCount(dataContext?.paths) ]);
+  }, [dataContext?.paths]);
+
   const groupedSamples = groupBy(samples, 'student_id');
-  console.log(dataSample)
   return (
     <div style={{ display: 'flex', width: '100vw', height: '100vh', backgroundColor: 'white', padding: '20px', boxSizing: 'border-box' }}>
       {/* Left Side */}
@@ -52,10 +63,18 @@ const DataVisuale: React.FC = () => {
 
       {/* Right Side */}
       <div >
-        <GraphTable
-          samples={dataSample.samples}
-        />
-      </div>
+        <GraphView options={
+                {
+                    size: 500,
+                    labels: [...dataSample.featureNames],
+                }
+            } 
+            samples={dataSample.samples}
+            dyanamicPoint={point}
+            />
+          <SketchPad/>
+        </div>
+
     </div>
   );
 };

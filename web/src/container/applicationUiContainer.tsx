@@ -7,6 +7,7 @@ const AppUiContainer = () => {
     <div >
         {/* <Draw/> */}
         <DataVisuale/>
+        {/* <GraphTable samples={samples}/> */}
     </div>
   )
 }
