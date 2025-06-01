@@ -31,4 +31,24 @@ export const mathcustom = {
   subtract: (a: number[], b: number[]) => {
     return [a[0] - b[0], a[1] - b[1]];
   },
+  distnace: (a: number[], b: number[]) => {
+    return Math.sqrt(
+      Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2)
+    );
+  },
+}
+
+//@ts-ignore
+mathcustom['getNearest'] = (point: number[], points: number[][]) => {
+  let minDistance = Number.MIN_SAFE_INTEGER;
+  let nearestIndex = 0
+  for (let i = 0; i < points.length; i++) {
+    const point = points[i];
+    const distance = mathcustom.distnace(point, point);
+    if (distance < minDistance) {
+      minDistance = distance;
+      nearestIndex = i;
+    }
+  }
+  return nearestIndex;
 }

@@ -1,10 +1,12 @@
 const fs = require('fs');
 const samples = require('../data/dataset/samples.json');
-const { features } = require('../common/feature');
+const  featureDefault  = require('../common/feature');
+const features = featureDefault.default;
 for (const sample of samples) {
     const jsonPath = `../data/dataset/json/${sample.id}.json`;
     const paths = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
-    sample["point"]=[features.getPathCount(paths), features.getPointCount(paths)]
+    const functions = features.inUse.map(feature => feature.function);
+    sample['point']=functions.map(func => func(paths));
 }
 
 const featureNames=["path count", "point count"];

@@ -1,14 +1,12 @@
 import React from 'react';
 import samples from '../../../data/dataset/samples.json';
 import { site } from '../constants';
-import GraphTable from '../graph/Graphtable';
 import dataSample from '../../../data/dataset/features.json';
 import GraphView from '../graph/graphView';
 import SketchPad from '../draw/sketchPad';
-import Draw from '../draw/draw';
 import DrawContext from '../draw/drawContext';
 //@ts-ignore
-import d from '../../../common/feature.js'
+import features from '../../../common/feature.js'
 type GroupByKey<T> = keyof T;
 
 export function groupBy<T>(objArray: T[], key: GroupByKey<T>): Record<string, T[]> {
@@ -25,11 +23,13 @@ export function groupBy<T>(objArray: T[], key: GroupByKey<T>): Record<string, T[
 
 const DataVisuale: React.FC = () => {
     const dataContext = React.useContext(DrawContext);
-    console.log(dataContext)
     const [point, setPoint] = React.useState<[number, number]>([0, 0]);
+    const functions = features.inUse.map((feature:{function:(p:number[][][])=>any}) => feature.function);
 
-    React.useEffect(() => {    
-      setPoint([d.getPathCount(dataContext?.paths),d.getPointCount(dataContext?.paths) ]);
+    React.useEffect(() => {  
+      const dataPoints = functions.map((func:(p:number[][][])=>any) => func(dataContext?.paths || []));
+      console.log('Data Points:', dataPoints);
+      setPoint([dataPoints[0], dataPoints[1]]);
   }, [dataContext?.paths]);
 
   const groupedSamples = groupBy(samples, 'student_id');
