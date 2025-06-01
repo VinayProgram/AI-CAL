@@ -36,6 +36,10 @@ const SketchPad = () => {
         setIsDrawing(true)
     }
 
+    const onMouseUp=()=>{
+        setIsDrawing(false)
+        dataContext?.setPaths((dp)=>[...dp])
+    }
 
   return (
     <div>
@@ -46,8 +50,7 @@ const SketchPad = () => {
        ref={canvasRef}
        onMouseMove={onMouseMove}
        onMouseDown={onMouseDown}
-       onMouseUp={()=>{
-        setIsDrawing(false)}}
+       onMouseUp={onMouseUp}
        ></canvas>
     <br/>
     </div>

@@ -26,7 +26,8 @@ export function groupBy<T>(objArray: T[], key: GroupByKey<T>): Record<string, T[
 const DataVisuale: React.FC = () => {
     const dataContext = React.useContext(DrawContext);
     const [point, setPoint] = React.useState<[number, number]>([0, 0]);
-    React.useMemo(() => {    
+
+    React.useEffect(() => {    
       setPoint([d.getPathCount(dataContext?.paths),d.getPointCount(dataContext?.paths) ]);
   }, [dataContext?.paths]);
 

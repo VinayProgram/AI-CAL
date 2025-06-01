@@ -54,7 +54,9 @@ const GraphView = ({ samples, options: initialOptions,dyanamicPoint }: GraphView
     if (ctx) {
       draw();
     }
-  }, [ctx, samples, initialOptions]);
+  }, [ctx, samples, initialOptions,dyanamicPoint]);
+
+
 
   const getPixelBounds = (): PixelLocation => {
     return {
@@ -84,9 +86,11 @@ const GraphView = ({ samples, options: initialOptions,dyanamicPoint }: GraphView
     ctx.globalAlpha = options.transperency!;
     drawAxes();
     drawSamples();
+     const newPoint = mathcustom.remapPoint(getDataBounds(), getPixelBounds(), dyanamicPoint);
+     console.log(dyanamicPoint);
+    graphics.drawPoint("dynamic", ctx!, newPoint[0], newPoint[1], 5, "red");
     ctx.globalAlpha = 1;
   };
-
 
   const getMouse = (event: React.MouseEvent<HTMLCanvasElement>, dataSpace: Boolean = false) => {
     const rect = ref.current?.getBoundingClientRect();
