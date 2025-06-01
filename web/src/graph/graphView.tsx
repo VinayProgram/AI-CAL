@@ -16,6 +16,10 @@ interface GraphViewProps {
 
 const GraphView = ({ samples, options: initialOptions,dyanamicPoint }: GraphViewProps) => {
   const ref = React.useRef<HTMLCanvasElement>(null);
+  const [trigger,setTrigger]=React.useState<number>(1)
+  window.addEventListener('mousemove', ()=>{
+    console.log(trigger)
+    setTrigger((t)=>t+1)});
   const [ctx, setCtx] = React.useState<CanvasRenderingContext2D | null>(null);
   const [dataPanOffset, setDataPanOffset] = React.useState<{
     offset: number[],
@@ -56,6 +60,7 @@ const GraphView = ({ samples, options: initialOptions,dyanamicPoint }: GraphView
     }
   }, [ctx, samples, initialOptions]);
 
+
   const getPixelBounds = (): PixelLocation => {
     return {
       minX: options.margin!,
@@ -78,9 +83,18 @@ const GraphView = ({ samples, options: initialOptions,dyanamicPoint }: GraphView
   };
 
   const [currentDataBounds, SetCurrentDataBounds] = React.useState<PixelLocation>(getDataBounds());
+    React.useEffect(() => {
+     if(dyanamicPoint&&ctx){
+    ctx.clearRect(0, 0, options.size, options.size);
+      const p = mathcustom.remapPoint(getDataBounds(), getPixelBounds(), dyanamicPoint);
+       console.log(p)
+       graphics.drawPoint("Dynamic Point", ctx, p[0], p[1], 5, "red");
+      }
+  },[dyanamicPoint,trigger]);
+  
   const draw = () => {
     if (!ctx) return;
-    ctx.clearRect(0, 0, options.size, options.size);
+
     ctx.globalAlpha = options.transperency!;
     drawAxes();
     drawSamples();
