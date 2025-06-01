@@ -89,8 +89,11 @@ const GraphView = ({ samples, options: initialOptions,dyanamicPoint }: GraphView
     ctx.globalAlpha = options.transperency!;
     drawAxes();
     drawSamples();
-     const newPoint = mathcustom.remapPoint(getDataBounds(), getPixelBounds(), dyanamicPoint);
-     console.log(dyanamicPoint);
+    const newPoint = mathcustom.remapPoint(getDataBounds(), getPixelBounds(), dyanamicPoint);
+    // console.log(dyanamicPoint);
+    const points= samples.map((s) => s.point);
+    const nearestIndex = mathcustom.getNearest(newPoint, points);
+    console.log("nearestIndex", samples[nearestIndex]?.label);
     graphics.drawPoint("dynamic", ctx!, newPoint[0], newPoint[1], 5, "red");
     ctx.globalAlpha = 1;
   };

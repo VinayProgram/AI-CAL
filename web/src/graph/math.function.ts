@@ -36,19 +36,18 @@ export const mathcustom = {
       Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2)
     );
   },
+  getNearest: (point: number[], points: number[][]) => {
+    let minDistance = Number.MAX_SAFE_INTEGER;
+    let nearestIndex = -1;
+    for (let i = 0; i < points.length; i++) {
+      const p = points[i];
+      const distance = mathcustom.distnace(point, p);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestIndex = i;
+      }
+    }
+    return nearestIndex;
+  }
 }
 
-//@ts-ignore
-mathcustom['getNearest'] = (point: number[], points: number[][]) => {
-  let minDistance = Number.MIN_SAFE_INTEGER;
-  let nearestIndex = 0
-  for (let i = 0; i < points.length; i++) {
-    const point = points[i];
-    const distance = mathcustom.distnace(point, point);
-    if (distance < minDistance) {
-      minDistance = distance;
-      nearestIndex = i;
-    }
-  }
-  return nearestIndex;
-}
