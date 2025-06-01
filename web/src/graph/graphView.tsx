@@ -85,16 +85,24 @@ const GraphView = ({ samples, options: initialOptions,dyanamicPoint }: GraphView
   
   const draw = () => {
     if (!ctx) return;
-
+    ctx.clearRect(0, 0, options.size, options.size);
     ctx.globalAlpha = options.transperency!;
     drawAxes();
     drawSamples();
+    if(dyanamicPoint[0] !== -Infinity) {
     const newPoint = mathcustom.remapPoint(getDataBounds(), getPixelBounds(), dyanamicPoint);
-    // console.log(dyanamicPoint);
+    console.log(dyanamicPoint);
+    console.log(newPoint);
     const points= samples.map((s) => s.point);
     const nearestIndex = mathcustom.getNearest(newPoint, points);
-    console.log("nearestIndex", samples[nearestIndex]?.label);
     graphics.drawPoint("dynamic", ctx!, newPoint[0], newPoint[1], 5, "red");
+    ctx.beginPath();
+    ctx.moveTo(newPoint[0], newPoint[1]);
+    const linePoint = mathcustom.remapPoint(getDataBounds(), getPixelBounds(), samples[nearestIndex]?.point)
+    ctx.lineTo(linePoint[0], linePoint[1]);
+    ctx.strokeStyle = "red";
+    ctx.stroke();
+    }
     ctx.globalAlpha = 1;
   };
 
