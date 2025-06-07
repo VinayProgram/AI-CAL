@@ -37,19 +37,17 @@ export const mathcustom = {
       (p1[1]-p2[1])**2
    );
   },
-  getNearest: (loc: number[], points: number[][]) => {
-   let minDist=Number.MAX_SAFE_INTEGER;
-   let nearestIndex=0;
+  getNearest: (loc: number[], points: number[][],k:number=1) => {
+    const obj = points.map((point, index) => {
+      return {index,point}
+    })
 
-   for(let i=0;i<points.length;i++){
-      const point=points[i];
-      const d=mathcustom.distnace(loc,point);
-      if(d<minDist){
-         minDist=d;
-         nearestIndex=i;
-      }
-   }
-   return nearestIndex;
+    const sort = obj.sort((a, b) => {
+      return mathcustom.distnace(loc, a.point) - mathcustom.distnace(loc, b.point);
+    })
+
+    const indeces = sort.map((s) => s.index);
+    return indeces.slice(0, k);
     }
 }
 

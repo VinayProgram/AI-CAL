@@ -78,7 +78,7 @@ const GraphView = ({ samples, options: initialOptions, dyanamicPoint }: GraphVie
     const maxY = Math.max(...y)
     const deltaX = maxX - minX;
     const deltaY = maxY - minY;
-    const maxDelta = Math.max(deltaX, deltaY);  
+    const maxDelta = Math.max(deltaX, deltaY);
     return {
       minX,
       maxX,
@@ -90,29 +90,46 @@ const GraphView = ({ samples, options: initialOptions, dyanamicPoint }: GraphVie
   const [currentDataBounds, SetCurrentDataBounds] = React.useState<PixelLocation>(getDataBounds());
   ;
 
-  const draw = () => {
+  const getNearest = () => {
     const dataBounds = getDataBounds();
     const pixelBounds = getPixelBounds();
-    if (!ctx) return;
-    ctx.clearRect(0, 0, options.size, options.size);
-    ctx.globalAlpha = options.transperency!;
-    drawAxes();
-    drawSamples();
+    if (ctx === null) return;
     if (dyanamicPoint[0] !== -Infinity) {
       const newPoint = mathcustom.remapPoint(dataBounds, pixelBounds, dyanamicPoint);
       const points = samples.map((s) => mathcustom.remapPoint(dataBounds, pixelBounds, s.point));
-      const nearestIndex = mathcustom.getNearest(newPoint, points);
-      graphics.drawPoint("dynamic", ctx!, newPoint[0], newPoint[1], 5, "red");
-      ctx.beginPath();
-      ctx.moveTo(newPoint[0], newPoint[1]);
-      const linePoint = mathcustom.remapPoint(dataBounds, pixelBounds, samples[nearestIndex]?.point)
-      ctx.lineTo(linePoint[0], linePoint[1]);
-      ctx.strokeStyle = "red";
-      ctx.stroke();
-      console.log("nearestIndex", nearestIndex, samples[nearestIndex].label);
+      const indices = mathcustom.getNearest(newPoint, points, 3);
+      const nearestSample = indices.map((i) => samples[i]);
+      const labels = nearestSample.map((s) => s.label);
+      const counts: { [key: string]: number } = {}
+      for (const label of labels) {
+        counts[label] = counts[label] ? counts[label] + 1 : 1;
+      }
+      const max = Math.max(...Object.values(counts));
+      const label = labels.find((l) => counts[l] === max);
+      return { newPoint, label, nearestSample }
     }
-    ctx.globalAlpha = 1;
-  };
+  }
+
+  const showDyanamicPoint = (newPoint: number[],nearestSample:nearestSampleTYPE) => {
+    if (!ctx) return;
+    const dataBounds = getDataBounds();
+    const pixelBounds = getPixelBounds();
+    graphics.drawPoint("dynamic", ctx!, newPoint[0], newPoint[1], 5, "red");
+    for (const sample of nearestSample?.nearestSample || []) {
+      console.log(sample);
+    const point = mathcustom.remapPoint(dataBounds, pixelBounds, sample.point);
+    ctx.beginPath();
+    ctx.moveTo(newPoint[0], newPoint[1]);
+    ctx.lineTo(point[0], point[1]);
+    ctx.strokeStyle = "blue";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    }
+    
+  }
+
+
+
 
   const getMouse = (event: React.MouseEvent<HTMLCanvasElement>, dataSpace: Boolean = false) => {
     const rect = ref.current?.getBoundingClientRect();
@@ -126,6 +143,7 @@ const GraphView = ({ samples, options: initialOptions, dyanamicPoint }: GraphVie
     }
     return pixelLocation;
   }
+
   const drawSamples = () => {
     if (!ctx) return;
 
@@ -248,6 +266,21 @@ const GraphView = ({ samples, options: initialOptions, dyanamicPoint }: GraphVie
       draw(); // Redraw with updated bounds
     }
   }
+
+  const draw = () => {
+    if (!ctx) return;
+    ctx.clearRect(0, 0, options.size, options.size);
+    ctx.globalAlpha = options.transperency!;
+    drawAxes();
+    drawSamples();
+    const nearest = getNearest();
+    console.log(nearest);
+    showDyanamicPoint(nearest?.newPoint || [-Infinity, -Infinity], nearest );
+    if (nearest) {
+      ctx.globalAlpha = 1;
+    };
+  }
+
   return (
     <div>
       <canvas
@@ -277,6 +310,7 @@ const GraphView = ({ samples, options: initialOptions, dyanamicPoint }: GraphVie
       />
     </div>
   );
+
 };
 
 export type PixelLocation = {
@@ -286,4 +320,10 @@ export type PixelLocation = {
   maxY: number;
 };
 
-export default GraphView;
+
+export type nearestSampleTYPE = {
+    newPoint: number[];
+    label: string | undefined;
+    nearestSample: samplestype[];
+} | undefined
+export default GraphView
