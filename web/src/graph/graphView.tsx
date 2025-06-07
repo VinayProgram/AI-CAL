@@ -97,7 +97,7 @@ const GraphView = ({ samples, options: initialOptions, dyanamicPoint }: GraphVie
     if (dyanamicPoint[0] !== -Infinity) {
       const newPoint = mathcustom.remapPoint(dataBounds, pixelBounds, dyanamicPoint);
       const points = samples.map((s) => mathcustom.remapPoint(dataBounds, pixelBounds, s.point));
-      const indices = mathcustom.getNearest(newPoint, points, 3);
+      const indices = mathcustom.getNearest(newPoint, points, 10);
       const nearestSample = indices.map((i) => samples[i]);
       const labels = nearestSample.map((s) => s.label);
       const counts: { [key: string]: number } = {}

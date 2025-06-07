@@ -4,8 +4,8 @@ const {createCanvas}  = require('canvas')
 const canvas = createCanvas(400,400)
 const ctx = canvas.getContext('2d')
 
-export const rawDir = '../data/raw'
-export const datasetdir = '../data/dataset'
+const rawDir = '../data/raw'
+const datasetdir = '../data/dataset'
 const filenames = fs.readdirSync(rawDir)
 const samples = []
 let id = 1
