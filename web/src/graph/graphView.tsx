@@ -11,10 +11,10 @@ interface GraphViewProps {
     transperency?: number
     labels?: string[]
   },
-  dyanamicPoint:[number,number]
+  dyanamicPoint: [number, number]
 }
 
-const GraphView = ({ samples, options: initialOptions,dyanamicPoint }: GraphViewProps) => {
+const GraphView = ({ samples, options: initialOptions, dyanamicPoint }: GraphViewProps) => {
   const ref = React.useRef<HTMLCanvasElement>(null);
   const [ctx, setCtx] = React.useState<CanvasRenderingContext2D | null>(null);
   const [dataPanOffset, setDataPanOffset] = React.useState<{
@@ -54,7 +54,7 @@ const GraphView = ({ samples, options: initialOptions,dyanamicPoint }: GraphView
     if (ctx) {
       draw();
     }
-  }, [ctx, samples, initialOptions,dyanamicPoint]);
+  }, [ctx, samples, initialOptions, dyanamicPoint]);
 
 
 
@@ -72,36 +72,44 @@ const GraphView = ({ samples, options: initialOptions,dyanamicPoint }: GraphView
   const getDataBounds = (): PixelLocation => {
     const x = samples.map((s) => s.point[0]);
     const y = samples.map((s) => s.point[1]);
+    const minX = Math.min(...x)
+    const maxX = Math.max(...x)
+    const minY = Math.min(...y)
+    const maxY = Math.max(...y)
+    const deltaX = maxX - minX;
+    const deltaY = maxY - minY;
+    const maxDelta = Math.max(deltaX, deltaY);  
     return {
-      minX: Math.min(...x),
-      maxX: Math.max(...x),
-      minY: Math.min(...y),
-      maxY: Math.max(...y)
+      minX,
+      maxX,
+      minY,
+      maxY
     };
   };
 
   const [currentDataBounds, SetCurrentDataBounds] = React.useState<PixelLocation>(getDataBounds());
- ;
-  
+  ;
+
   const draw = () => {
+    const dataBounds = getDataBounds();
+    const pixelBounds = getPixelBounds();
     if (!ctx) return;
     ctx.clearRect(0, 0, options.size, options.size);
     ctx.globalAlpha = options.transperency!;
     drawAxes();
     drawSamples();
-    if(dyanamicPoint[0] !== -Infinity) {
-    const newPoint = mathcustom.remapPoint(getDataBounds(), getPixelBounds(), dyanamicPoint);
-    console.log(dyanamicPoint);
-    console.log(newPoint);
-    const points= samples.map((s) => s.point);
-    const nearestIndex = mathcustom.getNearest(newPoint, points);
-    graphics.drawPoint("dynamic", ctx!, newPoint[0], newPoint[1], 5, "red");
-    ctx.beginPath();
-    ctx.moveTo(newPoint[0], newPoint[1]);
-    const linePoint = mathcustom.remapPoint(getDataBounds(), getPixelBounds(), samples[nearestIndex]?.point)
-    ctx.lineTo(linePoint[0], linePoint[1]);
-    ctx.strokeStyle = "red";
-    ctx.stroke();
+    if (dyanamicPoint[0] !== -Infinity) {
+      const newPoint = mathcustom.remapPoint(dataBounds, pixelBounds, dyanamicPoint);
+      const points = samples.map((s) => mathcustom.remapPoint(dataBounds, pixelBounds, s.point));
+      const nearestIndex = mathcustom.getNearest(newPoint, points);
+      graphics.drawPoint("dynamic", ctx!, newPoint[0], newPoint[1], 5, "red");
+      ctx.beginPath();
+      ctx.moveTo(newPoint[0], newPoint[1]);
+      const linePoint = mathcustom.remapPoint(dataBounds, pixelBounds, samples[nearestIndex]?.point)
+      ctx.lineTo(linePoint[0], linePoint[1]);
+      ctx.strokeStyle = "red";
+      ctx.stroke();
+      console.log("nearestIndex", nearestIndex, samples[nearestIndex].label);
     }
     ctx.globalAlpha = 1;
   };
@@ -149,7 +157,7 @@ const GraphView = ({ samples, options: initialOptions,dyanamicPoint }: GraphView
       loc: { x: mathcustom.lerp(pixelBounds.maxX, pixelBounds.minX, 0.5), y: pixelBounds.maxY + options.margin / 2 },
       text: options.labels?.[0] || "km",
     });
-  
+
     // Y-axis label
     ctx.save();
     ctx.translate(pixelBounds.minX - options.margin / 2, options.size / 2);

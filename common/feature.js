@@ -19,9 +19,18 @@ const features={
         const maxY = Math.max(...yValues);  
         return maxY - minY;
     },
+
 }
 
 features["inUse"]=[
+// {
+//     name:"Path Count",
+//     function: features.getPathCount,
+// },
+// {
+//     name:"point Count",
+//     function: features.getPointCount,
+// },
 {
     name:"Width",
     function: features.getWidth,

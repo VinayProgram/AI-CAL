@@ -2,11 +2,14 @@ import React from 'react';
 import samples from '../../../data/dataset/samples.json';
 import { site } from '../constants';
 import dataSample from '../../../data/dataset/features.json';
+import minMax from '../../../data/dataset/minMax.json';
 import GraphView from '../graph/graphView';
 import SketchPad from '../draw/sketchPad';
 import DrawContext from '../draw/drawContext';
 //@ts-ignore
 import features from '../../../common/feature.js'
+// @ts-ignore
+import utils from '../../../common/utils.js';
 type GroupByKey<T> = keyof T;
 
 export function groupBy<T>(objArray: T[], key: GroupByKey<T>): Record<string, T[]> {
@@ -28,7 +31,7 @@ const DataVisuale: React.FC = () => {
 
     React.useEffect(() => {  
       const dataPoints = functions.map((func:(p:number[][][])=>any) => func(dataContext?.paths || []));
-      console.log('Data Points:', dataPoints);
+      utils.normalizePoints([dataPoints],minMax);
       setPoint([dataPoints[0], dataPoints[1]]);
   }, [dataContext?.paths]);
 
