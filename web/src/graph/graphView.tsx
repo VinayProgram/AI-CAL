@@ -2,17 +2,21 @@ import React, { MouseEventHandler } from "react";
 import { samplestype } from "./Graphtable";
 import { mathcustom } from "./math.function";
 import { graphics } from "./graphics";
+import { descionPrediction } from "./decissonTable";
+import DecisionBoundaryCanvas from "./decisonTableGenerator";
 
-interface GraphViewProps {
+export interface GraphViewProps {
   samples: samplestype[],
   options: {
     size: number
     margin?: number
     transperency?: number
     labels?: string[]
+    bg:HTMLImageElement
   },
   dyanamicPoint: [number, number]
 }
+
 
 const GraphView = ({ samples, options: initialOptions, dyanamicPoint }: GraphViewProps) => {
   const ref = React.useRef<HTMLCanvasElement>(null);
@@ -95,37 +99,29 @@ const GraphView = ({ samples, options: initialOptions, dyanamicPoint }: GraphVie
     const pixelBounds = getPixelBounds();
     if (ctx === null) return;
     if (dyanamicPoint[0] !== -Infinity) {
+
       const newPoint = mathcustom.remapPoint(dataBounds, pixelBounds, dyanamicPoint);
-      const points = samples.map((s) => mathcustom.remapPoint(dataBounds, pixelBounds, s.point));
-      const indices = mathcustom.getNearest(newPoint, points, 10);
-      const nearestSample = indices.map((i) => samples[i]);
-      const labels = nearestSample.map((s) => s.label);
-      const counts: { [key: string]: number } = {}
-      for (const label of labels) {
-        counts[label] = counts[label] ? counts[label] + 1 : 1;
-      }
-      const max = Math.max(...Object.values(counts));
-      const label = labels.find((l) => counts[l] === max);
-      return { newPoint, label, nearestSample }
+      const value = descionPrediction(dataBounds, pixelBounds, newPoint, 10)
+      return value
     }
   }
 
-  const showDyanamicPoint = (newPoint: number[],nearestSample:nearestSampleTYPE) => {
+  const showDyanamicPoint = (newPoint: number[], nearestSample: nearestSampleTYPE) => {
     if (!ctx) return;
     const dataBounds = getDataBounds();
     const pixelBounds = getPixelBounds();
     graphics.drawPoint("dynamic", ctx!, newPoint[0], newPoint[1], 5, "red");
-    for (const sample of nearestSample?.nearestSample || []) {
-      console.log(sample);
-    const point = mathcustom.remapPoint(dataBounds, pixelBounds, sample.point);
-    ctx.beginPath();
-    ctx.moveTo(newPoint[0], newPoint[1]);
-    ctx.lineTo(point[0], point[1]);
-    ctx.strokeStyle = "blue";
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    }
-    
+    // for (const sample of nearestSample?.nearestSample || []) {
+    //   console.log(sample);
+    //   const point = mathcustom.remapPoint(dataBounds, pixelBounds, sample.point);
+    //   ctx.beginPath();
+    //   ctx.moveTo(newPoint[0], newPoint[1]);
+    //   ctx.lineTo(point[0], point[1]);
+    //   ctx.strokeStyle = "blue";
+    //   ctx.lineWidth = 1;
+    //   ctx.stroke();
+    // }
+
   }
 
 
@@ -152,7 +148,7 @@ const GraphView = ({ samples, options: initialOptions, dyanamicPoint }: GraphVie
     for (const sample of samples) {
       const point = sample.point;
       const pixelLocation = mathcustom.remapPoint(dataBounds, pixelBounds, point);
-      graphics.drawPoint(sample.label, ctx, pixelLocation[0], pixelLocation[1], 5);
+      graphics.drawPoint(sample.label, ctx, pixelLocation[0], pixelLocation[1], 5, numberMap[sample.label]);
     }
   };
 
@@ -271,11 +267,15 @@ const GraphView = ({ samples, options: initialOptions, dyanamicPoint }: GraphVie
     if (!ctx) return;
     ctx.clearRect(0, 0, options.size, options.size);
     ctx.globalAlpha = options.transperency!;
+   const topLeft= mathcustom.remapPoint(getDataBounds(),getPixelBounds(),[0,1])
+    const sz = (options.size-options.margin*2)/dataPanOffset.scale**2
+    ctx.drawImage(options.bg,topLeft[0],topLeft[1],sz,sz)
     drawAxes();
-    drawSamples();
+    // drawSamples();
     const nearest = getNearest();
-    console.log(nearest);
-    showDyanamicPoint(nearest?.newPoint || [-Infinity, -Infinity], nearest );
+   const tm =document.getElementById('textmessage')!
+   tm.innerText = nearest?.label+""
+    showDyanamicPoint(nearest?.newPoint || [-Infinity, -Infinity], nearest);
     if (nearest) {
       ctx.globalAlpha = 1;
     };
@@ -283,6 +283,7 @@ const GraphView = ({ samples, options: initialOptions, dyanamicPoint }: GraphVie
 
   return (
     <div>
+      <h1 id="textmessage"></h1>
       <canvas
         onMouseDown={(e) => {
           const mousePosition = getMouse(e, true);
@@ -308,6 +309,15 @@ const GraphView = ({ samples, options: initialOptions, dyanamicPoint }: GraphVie
         ref={ref}
         style={{ backgroundColor: 'white' }}
       />
+      
+      {/* <DecisionBoundaryCanvas
+        key="boundary"
+        dataBounds={getDataBounds()}
+        pixelBounds={getPixelBounds()}
+        width={400}
+        height={400}
+        knn={10}
+      /> */}
     </div>
   );
 
@@ -322,8 +332,13 @@ export type PixelLocation = {
 
 
 export type nearestSampleTYPE = {
-    newPoint: number[];
-    label: string | undefined;
-    nearestSample: samplestype[];
+  newPoint: number[];
+  label: string | undefined;
+  nearestSample: samplestype[];
 } | undefined
 export default GraphView
+
+
+const numberMap: { [key: string]: string } = {
+  "0": "green", "1": "orange", "2": "blue", "3": "brown", "4": "pink", "5": "red", "6": "yellow", "7": "purple", "8": "magenta", "9": "cyan", "10": "black"
+}

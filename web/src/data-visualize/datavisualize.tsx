@@ -6,6 +6,7 @@ import minMax from '../../../data/dataset/minMax.json';
 import GraphView from '../graph/graphView';
 import SketchPad from '../draw/sketchPad';
 import DrawContext from '../draw/drawContext';
+import img from '../../../data/decision-boundary.png'
 //@ts-ignore
 import features from '../../../common/feature.js'
 // @ts-ignore
@@ -36,6 +37,26 @@ const DataVisuale: React.FC = () => {
   }, [dataContext?.paths]);
 
   const groupedSamples = groupBy(samples, 'student_id');
+  const image =new Image()
+  image.src = img
+  if(true){
+    return(
+      <div >
+        <GraphView
+        options={
+                {
+                    size: 500,
+                    labels: [...dataSample.featureNames],
+                    bg:image
+                }
+            } 
+            samples={dataSample.samples}
+            dyanamicPoint={point}
+            />
+          <SketchPad/>
+        </div>
+    )
+  }
   return (
     <div style={{ display: 'flex', width: '100vw', height: '100vh', backgroundColor: 'white', padding: '20px', boxSizing: 'border-box' }}>
       {/* Left Side */}
@@ -73,6 +94,7 @@ const DataVisuale: React.FC = () => {
                 {
                     size: 500,
                     labels: [...dataSample.featureNames],
+                    bg:image
                 }
             } 
             samples={dataSample.samples}
